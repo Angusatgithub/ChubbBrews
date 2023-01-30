@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <style>
+      #section-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, auto);
+        grid-gap: 10px;
+      }
+
+      .section {
+        background-color: #f2f2f2;
+        padding: 10px;
+      }
+
+      .section h2 {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+    </style>
+    <script>
+      // Fetch data from Airtable API
+      fetch("https://api.airtable.com/v0/appmwHXcl5WlZPBtz/tbl5DWH2NXcMyBbtM", {
+        headers: {
+          Authorization: "Bearer patF2f4eNJLWO6XxN.9644ea196575b0818d20303383c1dc4a6382f57a99a049e18b65fd05bd9b9a81"
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Extract data points from JSON
+          const sections = data.records.map(record => {
+            return {
+              title: record.fields.title,
+              dataPoint1: record.fields.dataPoint1,
+              dataPoint2: record.fields.dataPoint2,
+              color: record.fields.color
+            };
+          });
+
+          // Dynamically generate HTML to display sections
+          const container = document.getElementById("section-container");
+          sections.forEach(section => {
+            const sectionDiv = document.createElement("div");
+            sectionDiv.classList.add("section");
+            sectionDiv.style.backgroundColor = section.color;
+            sectionDiv.innerHTML = `
+              <h2>${section.title}</h2>
+              <p>Data Point 1: ${section.dataPoint1}</p>
+              <p>Data Point 2: ${section.dataPoint2}</p>
+            `;
+            container.appendChild(sectionDiv);
+          });
+        });
+    </script>
+  </head>
+  <body>
+    <div id="section-container"></div>
+  </body>
+</html>
