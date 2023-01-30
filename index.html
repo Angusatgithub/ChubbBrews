@@ -24,40 +24,26 @@
 <body>
     <div id="app"></div>
     <script>
-        var base = new Airtable({apiKey: 'patF2f4eNJLWO6XxN.9644ea196575b0818d20303383c1dc4a6382f57a99a049e18b65fd05bd9b9a81'}).base('appmwHXcl5WlZPBtz');
-        var app = document.getElementById("app");
+        const API_KEY = 'patF2f4eNJLWO6XxN.9644ea196575b0818d20303383c1dc4a6382f57a99a049e18b65fd05bd9b9a81';
+const BASE_ID = 'appmwHXcl5WlZPBtz';
+const TABLE_NAME = 'Beer Menu';
+const MAX_RECORDS = 6;
 
-        base('Beer Menu').select({
-            maxRecords: 6,
-            view: "Grid view"
-        }).eachPage(function page(records, fetchNextPage) {
-            records.forEach(function(record) {
-                var section = document.createElement("div");
-                section.className = "section";
-                section.style.backgroundColor = record.get("Background Color");
+const fetchData = async () => {
+  const response = await fetch(
+    `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?maxRecords=${MAX_RECORDS}&api_key=${API_KEY}`
+  );
+  const data = await response.json();
+  return data;
+};
 
-                var title = document.createElement("div");
-                title.className = "section-title";
-                title.innerHTML = record.get("Title");
-
-                var data1 = document.createElement("div");
-                data1.className = "section-data";
-                data1.innerHTML = record.get("Description");
-
-                var data2 = document.createElement("div");
-                data2.className = "section-data";
-                data2.innerHTML = record.get("ABV");
-
-                section.appendChild(title);
-                section.appendChild(data1);
-                section.appendChild(data2);
-                app.appendChild(section);
-            });
-
-            fetchNextPage();
-        }, function done(err) {
-            if (err) { console.error(err); return; }
-        });
+fetchData().then(data => {
+  console.log('Retrieved data:', data);
+  data.records.forEach(record => {
+    console.log('Title:', record.fields.Title);
+    console.log('Description:', record.fields.Description);
+  });
+});
     </script>
 </body>
 </html>
