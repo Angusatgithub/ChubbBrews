@@ -1,49 +1,54 @@
-// Get the container for all sections
-const sectionsContainer = document.getElementById("section-container");
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRouKnY_K7dQLbyEr_e6vfAmKHRuPA6daqKPZpZo1w5j9cgNqXJR61fZDY_89lfBkOEG9fzLDDgQreZ/pubhtml";
 
-// Get all sections within the container
-const sections = sectionsContainer.getElementsByClassName("section");
+// Send an AJAX request to retrieve the data from the URL
+const xhr = new XMLHttpRequest();
+xhr.open("GET", url, true);
+xhr.responseType = "document";
+xhr.onload = function() {
+  if (xhr.readyState === xhr.DONE) {
+    if (xhr.status === 200) {
+      // Get the table from the published Google Sheets URL
+      const table = xhr.response.querySelector("table");
 
-// URL of the Google Sheets API
-const apiUrl = "https://spreadsheets.google.com/feeds/list/1gC51el4lpJ36Ij_TWq12ApLQ3hvj9NM9J5Dhc3vjfA8/0/public/values?alt=json";
+      // Get the table rows
+      const rows = table.querySelectorAll("tr");
 
-// Function to fetch data from the API
-async function getData() {
-  try {
-    // Fetch data from the API
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+      // Initialize an empty array to store the data
+      const data = [];
 
-    // Get all entries from the data
-    const entries = data.feed.entry;
+      // Loop through each row and extract the data
+      for (const row of rows) {
+        const cells = row.querySelectorAll("td");
+        const rowData = [];
+        for (const cell of cells) {
+          rowData.push(cell.textContent);
+        }
+        data.push(rowData);
+      }
 
-    // Update sections with the data from the entries
-    updateSections(entries);
-  } catch (error) {
-    console.error(error);
+      // Create a section for each row of data
+      const sectionsContainer = document.querySelector("#sections");
+      for (const [index, rowData] of data.entries()) {
+        const section = document.createElement("div");
+        section.classList.add("section");
+
+        // Add a title to the section
+        const title = document.createElement("h2");
+        title.textContent = rowData[0];
+        section.appendChild(title);
+
+        // Add the other data points to the section
+        for (let i = 1; i < rowData.length; i++) {
+          const dataPoint = document.createElement("p");
+          dataPoint.textContent = rowData[i];
+          section.appendChild(dataPoint);
+        }
+
+        sectionsContainer.appendChild(section);
+      }
+    } else {
+      console.error("Failed to retrieve data from the URL");
+    }
   }
-}
-
-// Function to update the sections with the data from the entries
-function updateSections(entries) {
-  // Loop through all entries
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    const section = sections[i];
-
-    // Get the title element for the section
-    const title = section.getElementsByClassName("section-title")[0];
-
-    // Get all data point elements for the section
-    const dataPoints = section.getElementsByClassName("data-point");
-
-    // Update the title and data points with the values from the entry
-    title.innerHTML = entry.gsx$title.$t;
-    dataPoints[0].innerHTML = entry.gsx$datapoint1.$t;
-    dataPoints[1].innerHTML = entry.gsx$datapoint2.$t;
-    dataPoints[2].innerHTML = entry.gsx$datapoint3.$t;
-  }
-}
-
-// Call the getData function when the DOM content has loaded
-document.addEventListener("DOMContentLoaded", getData);
+};
+xhr.send();
