@@ -1,54 +1,41 @@
-const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRouKnY_K7dQLbyEr_e6vfAmKHRuPA6daqKPZpZo1w5j9cgNqXJR61fZDY_89lfBkOEG9fzLDDgQreZ/pubhtml";
+var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + '1gC51el4lpJ36Ij_TWq12ApLQ3hvj9NM9J5Dhc3vjfA8' + '/values/' + 'Tap_list' + '?alt=json&key=' + 'AIzaSyAn545aPb1YXYJOnVkPX_VNunHwUGvwoGk';
+let arrays;
+const container = document.getElementById("container");
 
-// Send an AJAX request to retrieve the data from the URL
-const xhr = new XMLHttpRequest();
-xhr.open("GET", url, true);
-xhr.responseType = "document";
-xhr.onload = function() {
-  if (xhr.readyState === xhr.DONE) {
-    if (xhr.status === 200) {
-      // Get the table from the published Google Sheets URL
-      const table = xhr.response.querySelector("table");
+  fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    arrays = data.values;
+    for (let i = 0; i < arrays.length; i++) {
+      const section = document.createElement("section");
+      section.style.backgroundColor = arrays[i][3];
 
-      // Get the table rows
-      const rows = table.querySelectorAll("tr");
-
-      // Initialize an empty array to store the data
-      const data = [];
-
-      // Loop through each row and extract the data
-      for (const row of rows) {
-        const cells = row.querySelectorAll("td");
-        const rowData = [];
-        for (const cell of cells) {
-          rowData.push(cell.textContent);
-        }
-        data.push(rowData);
+      for (let j = 0; j < arrays[i].length - 1; j++) {
+        const p = document.createElement("p");
+        p.innerText = arrays[i][j];
+        section.appendChild(p);
       }
 
-      // Create a section for each row of data
-      const sectionsContainer = document.querySelector("#sections");
-      for (const [index, rowData] of data.entries()) {
-        const section = document.createElement("div");
-        section.classList.add("section");
-
-        // Add a title to the section
-        const title = document.createElement("h2");
-        title.textContent = rowData[0];
-        section.appendChild(title);
-
-        // Add the other data points to the section
-        for (let i = 1; i < rowData.length; i++) {
-          const dataPoint = document.createElement("p");
-          dataPoint.textContent = rowData[i];
-          section.appendChild(dataPoint);
-        }
-
-        sectionsContainer.appendChild(section);
-      }
-    } else {
-      console.error("Failed to retrieve data from the URL");
+      container.appendChild(section);
     }
-  }
-};
-xhr.send();
+  });
+
+// fetch(url)
+//   .then(response => response.json())
+//   .then(data => {
+//     arrays = data.values;
+//     console.log(arrays);
+//   });
+
+
+//   for (let i = 0; i < arrays.length; i++) {
+//     const section = document.createElement("section");
+  
+//     for (let j = 0; j < arrays[i].length; j++) {
+//       const p = document.createElement("p");
+//       p.innerText = arrays[i][j];
+//       section.appendChild(p);
+//     }
+  
+//     container.appendChild(section);
+//   }
